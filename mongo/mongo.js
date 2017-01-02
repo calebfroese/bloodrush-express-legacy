@@ -7,13 +7,18 @@ var database;
 
 // Query scripts
 var collections = {
-    'teams': require('./teams.js')
+    'teams': require('./teams.js'),
+    'users': require('./users.js')
 }
 
 module.exports = {
-    query: (collection, queryname, callback) => {
-        collections[collection][queryname](database, response => {
-            callback(response)
-        });
+    query: (collection, queryname, params, callback) => {
+        if (database) {
+            collections[collection][queryname](database, params, response => {
+                callback(response);
+            });
+        } else {
+            callback({'error': 'no database available'});
+        }
     }
 }
