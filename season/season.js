@@ -5,6 +5,7 @@ var moment = require('moment');
 
 const IDEAL_TOTAL_GAMES_PLAYED = 26; // season matcher will try to get close to this value of games played (therefore days)
 var nextGameDate = moment();
+var roundNumber = 1;
 var createRounds = (playersArray) => {
     // Logic from: http://stackoverflow.com/questions/6648512/scheduling-algorithm-for-a-round-robin-tournament
     // Create a round where each player will play everyone else once
@@ -20,7 +21,7 @@ var createRounds = (playersArray) => {
     for (var i = 0; i < playerCount - 1; i++) {
 
         for (var j = 0; j < playerCount / 2; j++) {
-            gamesArray.push([playersArray[j], playersArray[playerCount - j - 1], moment(nextGameDate).toDate()]);
+            gamesArray.push([playersArray[j], playersArray[playerCount - j - 1], moment(nextGameDate).toDate(), roundNumber]);
             console.log(moment(nextGameDate).format('DD/MM'));
         }
         // Move the arrays
@@ -32,6 +33,7 @@ var createRounds = (playersArray) => {
         playersArray.unshift(last);
         playersArray.unshift(first);
 
+        roundNumber++;
         nextGameDate = moment(nextGameDate).add(1, 'day');
     }
 
@@ -46,9 +48,13 @@ var shuffle = (array) => {
         randomIndex = Math.floor(Math.random() * currentIndex);
         currentIndex -= 1;
         // And swap it with the current element.
-        temporaryValue = array[currentIndex];
-        array[currentIndex] = array[randomIndex];
-        array[randomIndex] = temporaryValue;
+        temporaryValue = array[currentIndex][0];
+        array[currentIndex][0] = array[randomIndex][0];
+        array[randomIndex][0] = temporaryValue;
+
+        temporaryValue = array[currentIndex][1];
+        array[currentIndex][1] = array[randomIndex][1];
+        array[randomIndex][1] = temporaryValue;
     }
     return array;
 }
@@ -81,7 +87,7 @@ module.exports = {
                     }, this);
 
                     var season = [];
-                    season = (createRounds(teamsIdArray));
+                    season = shuffle(createRounds(teamsIdArray));
                     var gamesPerSeason = season.length;
 
                     var over;
@@ -104,7 +110,7 @@ module.exports = {
                     }
 
                     for (var i = 1; i < use; i++) {
-                        season = season.concat((createRounds(teamsIdArray)));
+                        season = season.concat(shuffle(createRounds(teamsIdArray)));
                     }
 
                     // Save the season
