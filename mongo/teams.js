@@ -8,9 +8,15 @@ module.exports = {
         })
     },
     byId: (database, params, callback) => {
-        database.collection('teams').find({'_id': ObjectId(params.id)}).toArray((err, result) => {
+        database.collection('teams').find({ '_id': ObjectId(params.id) }).toArray((err, result) => {
             if (err) throw err
-            callback(result);
+            callback(result[0]);
+        })
+    },
+    byOwner: (database, params, callback) => {
+        database.collection('teams').find({ 'owner': ObjectId(params.ownerId) }).toArray((err, result) => {
+            if (err) throw err
+            callback(result[0]);
         })
     }
 }

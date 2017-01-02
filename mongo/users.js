@@ -21,16 +21,26 @@ module.exports = {
                 username: params.user.username,
                 email: params.user.email,
                 password: hash
+            }, (err) => {
+                if (err) throw err;
+                database.collection('users').find({
+                    username: params.user.username,
+                    email: params.user.email,
+                    password: hash
+                }).toArray((err, result) => {
+                    database.collection('teams').insert({
+                        name: params.team.name,
+                        acronym: params.team.acronym,
+                        style: params.team.style,
+                        col1: params.team.col1,
+                        col2: params.team.col2,
+                        col3: params.team.col3,
+                        owner: result[0]._id
+                    });
+                    callback({ 'ok': true });
+                })
+
             });
-            database.collection('teams').insert({
-                name: params.team.name,
-                acronym: params.team.acronym,
-                style: params.team.style,
-                col1: params.team.col1,
-                col2: params.team.col2,
-                col3: params.team.col3
-            });
-            callback({ 'ok': true });
         });
     },
     delete: (database, params, callback) => {
