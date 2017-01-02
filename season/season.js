@@ -19,37 +19,68 @@ module.exports = {
                     return;
                 }
 
-                
-                const DUMMY = -1;
                 var playersArray = [];
-                teamsArray.forEach(function (team) {
-                    playersArray.push(team.name);
-                }, this);
-                var playerCount = playersArray.length;
-                var roundRobinArray = [];                  // rs = round array
-                if (!playersArray) {
-                    playersArray = [];
-                    for (var x = 1; x <= playerCount; x += 1) {
-                        playersArray.push(x);
-                    }
-                } else {
-                    playersArray = playersArray.slice();
+                for(var i = 1; i <= 8; i++) {
+                    playersArray.push('Player ' + i);
                 }
+                // teamsArray.forEach(function (team) {
+                //     playersArray.push(team.name);
+                // }, this);
 
+                var playerCount = playersArray.length;
+                
                 if (playerCount % 2 === 1) {
-                    playersArray.push(DUMMY); // so we can match algorithm for even numbers
+                    playersArray.push('Bye'); // so we can match algorithm for even numbers
                     playerCount += 1;
                 }
-                for (var j = 0; j < playerCount - 1; j += 1) {
-                    roundRobinArray[j] = []; // create inner match array for round j
-                    for (var i = 0; i < playerCount / 2; i += 1) {
-                        if (playersArray[i] !== DUMMY && playersArray[playerCount - 1 - i] !== DUMMY) {
-                            roundRobinArray[j].push([playersArray[i], playersArray[playerCount - 1 - i]]); // insert pair as a match
-                        }
+
+                var games = [];
+                for(var i = 0; i < playerCount - 1; i++) {
+                    games[i] = [];
+                    for(var j = 0; j < playerCount / 2; j++) {
+                        games[i].push([playersArray[j], playersArray[j + (playerCount/2)]]);
                     }
-                    playersArray.splice(1, 0, playersArray.pop()); // permutate for next round
+                    console.log(`${playersArray[0]} ${playersArray[1]} ${playersArray[2]} ${playersArray[3]}`);
+                    console.log(`${playersArray[4]} ${playersArray[5]} ${playersArray[6]} ${playersArray[7]}`);
+                    console.log('--');
+                    // Move the arrays
+                    var first = playersArray[0];
+                    var last = playersArray[playerCount - 1];
+
+                    playersArray.splice(-1, 1);
+                    playersArray.splice(0, 1);
+                    playersArray.unshift(last);
+                    playersArray.unshift(first);
                 }
-                callback(roundRobinArray);
+                console.log(games);
+                callback(games);
+                
+                // const BYE = 'BYE';
+                // var playersArray = [];
+                // teamsArray.forEach(function (team) {
+                //     playersArray.push(team.name);
+                // }, this);
+                // var playerCount = playersArray.length;
+                // var roundRobinArray = [];                  // rs = round array
+                
+                // playersArray = playersArray.slice();
+                
+
+                // if (playerCount % 2 === 1) {
+                //     playersArray.push(BYE); // so we can match algorithm for even numbers
+                //     playerCount += 1;
+                // }
+                // for (var j = 0; j < playerCount - 1; j += 1) {
+                //     roundRobinArray[j] = []; // create inner match array for round j
+                //     for (var i = 0; i < playerCount / 2; i += 1) {
+                //         if (playersArray[i] !== BYE && playersArray[playerCount - 1 - i] !== BYE) {
+                //             roundRobinArray[j].push([playersArray[i], playersArray[playerCount - 1 - i]]); // insert pair as a match
+                //         }
+                //     }
+                //     playersArray.splice(1, 0, playersArray.pop()); // permutate for next round
+                // }
+                
+                // callback(roundRobinArray);
 
 
                 // var teamIdArray = [];
