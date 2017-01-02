@@ -1,9 +1,9 @@
 var MongoClient = require('mongodb').MongoClient;
+var database;
 MongoClient.connect('mongodb://localhost:27017/bloodrush', (err, db) => {
     if (err) throw err
     database = db;
 })
-var database;
 
 // Query scripts
 var collections = {
