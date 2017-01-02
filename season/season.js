@@ -1,5 +1,5 @@
-var robin = require('roundrobin');
 var MongoClient = require('mongodb').MongoClient;
+var moment = require('moment');
 var database;
 MongoClient.connect('mongodb://localhost:27017/bloodrush', (err, db) => {
     if (err) throw err
@@ -7,7 +7,7 @@ MongoClient.connect('mongodb://localhost:27017/bloodrush', (err, db) => {
 })
 
 const IDEAL_TOTAL_GAMES_PLAYED = 26; // season matcher will try to get close to this value of games played (therefore days)
-
+var nextGameDate = moment();
 var createRounds = (playersArray) => {
     // Logic from: http://stackoverflow.com/questions/6648512/scheduling-algorithm-for-a-round-robin-tournament
     // Create a round where each player will play everyone else once
@@ -21,9 +21,11 @@ var createRounds = (playersArray) => {
     var gamesArray = [];
 
     for (var i = 0; i < playerCount - 1; i++) {
+
         gamesArray[i] = [];
         for (var j = 0; j < playerCount / 2; j++) {
-            gamesArray[i].push([playersArray[j], playersArray[playerCount - j - 1]]);
+            gamesArray[i].push([playersArray[j], playersArray[playerCount - j - 1], nextGameDate]);
+            console.log(moment(nextGameDate).format('DD/MM'));
         }
         // Move the arrays
         var first = playersArray[0];
@@ -33,7 +35,10 @@ var createRounds = (playersArray) => {
         playersArray.splice(0, 1);
         playersArray.unshift(last);
         playersArray.unshift(first);
+
+        nextGameDate = moment(nextGameDate).add(1, 'day');
     }
+
     return gamesArray;
 }
 
@@ -72,7 +77,7 @@ module.exports = {
                 }, this);
 
                 var season = [];
-                season = shuffle(createRounds(teamsIdArray));
+                season = (createRounds(teamsIdArray));
                 var gamesPerSeason = season.length;
 
                 var over;
@@ -95,7 +100,7 @@ module.exports = {
                 }
 
                 for (var i = 1; i < use; i++) {
-                    season = season.concat(shuffle(createRounds(teamsIdArray)));
+                    season = season.concat((createRounds(teamsIdArray)));
                 }
                 callback(season);
             })
