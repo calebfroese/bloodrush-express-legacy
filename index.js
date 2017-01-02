@@ -13,8 +13,8 @@ app.post('/query/:collection/:queryname', (req, res) => {
     mongo.query(req.params.collection, req.params.queryname, req.body, (response) => {
         res.send(response)
     });
-})
+});
 
 app.listen(3000, () => {
     console.log('Bloodrush server listening on port 3000');
-})
+});
