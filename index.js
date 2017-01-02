@@ -18,7 +18,7 @@ app.post('/query/:collection/:queryname', (req, res) => {
 
 app.get('/genseason', (req, res) => {
     season.generateSeason(response => {
-        res.send(response);
+        res.send(response)
     });
 });
 

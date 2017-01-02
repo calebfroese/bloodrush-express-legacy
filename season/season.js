@@ -1,10 +1,7 @@
 var MongoClient = require('mongodb').MongoClient;
+var ObjectId = require('mongodb').ObjectID;
 var moment = require('moment');
-var database;
-MongoClient.connect('mongodb://localhost:27017/bloodrush', (err, db) => {
-    if (err) throw err
-    database = db;
-})
+
 
 const IDEAL_TOTAL_GAMES_PLAYED = 26; // season matcher will try to get close to this value of games played (therefore days)
 var nextGameDate = moment();
@@ -22,9 +19,8 @@ var createRounds = (playersArray) => {
 
     for (var i = 0; i < playerCount - 1; i++) {
 
-        gamesArray[i] = [];
         for (var j = 0; j < playerCount / 2; j++) {
-            gamesArray[i].push([playersArray[j], playersArray[playerCount - j - 1], nextGameDate]);
+            gamesArray.push([playersArray[j], playersArray[playerCount - j - 1], moment(nextGameDate).toDate()]);
             console.log(moment(nextGameDate).format('DD/MM'));
         }
         // Move the arrays
@@ -58,55 +54,75 @@ var shuffle = (array) => {
 }
 
 module.exports = {
+    byNumber: (database, params, callback) => {
+        // Fetches the season by its number
+        database.collection('seasons').find().toArray((err, items) => {
+            callback(items);
+        });
+    },
     generateSeason: (callback) => {
-        // Generates a season with the currently enlisted teams
-        if (database) {
-            database.collection('teams').find().toArray((err, teamsArray) => {
-                if (err) throw err
-                // Now we have an array of the teams in teamsArray
-                // Generate 25 rounds
-                if (teamsArray < 3) {
-                    callback('must have at least 3 players');
-                    return;
-                }
-
-                var teamsIdArray = [];
-
-                teamsArray.forEach(function (team) {
-                    teamsIdArray.push(team._id);
-                }, this);
-
-                var season = [];
-                season = (createRounds(teamsIdArray));
-                var gamesPerSeason = season.length;
-
-                var over;
-                var under;
-                var use;
-                for (var i = 1; i < IDEAL_TOTAL_GAMES_PLAYED; i++) {
-                    if (i * gamesPerSeason > IDEAL_TOTAL_GAMES_PLAYED) {
-                        over = i;
-                        break;
-                    } else {
-                        under = i;
+        MongoClient.connect('mongodb://localhost:27017/bloodrush', (err, databaseLocalScope) => {
+            if (err) throw err
+            // Generates a season with the currently enlisted teams
+            if (databaseLocalScope) {
+                databaseLocalScope.collection('teams').find().toArray((err, teamsArray) => {
+                    if (err) throw err
+                    // Now we have an array of the teams in teamsArray
+                    // Generate 25 rounds
+                    if (teamsArray < 3) {
+                        callback('must have at least 3 players');
+                        return;
                     }
-                }
-                // Should we go over the amount of games, or under, dpeending which is closer
-                if (IDEAL_TOTAL_GAMES_PLAYED - (under * gamesPerSeason) > (over * gamesPerSeason) - IDEAL_TOTAL_GAMES_PLAYED) {
-                    // Use over
-                    use = over;
-                } else {
-                    use = under;
-                }
 
-                for (var i = 1; i < use; i++) {
-                    season = season.concat((createRounds(teamsIdArray)));
-                }
-                callback(season);
-            })
-        } else {
-            callback('no database!');
-        }
+                    var teamsIdArray = [];
+
+                    teamsArray.forEach(function (team) {
+                        teamsIdArray.push(team._id);
+                    }, this);
+
+                    var season = [];
+                    season = (createRounds(teamsIdArray));
+                    var gamesPerSeason = season.length;
+
+                    var over;
+                    var under;
+                    var use;
+                    for (var i = 1; i < IDEAL_TOTAL_GAMES_PLAYED; i++) {
+                        if (i * gamesPerSeason > IDEAL_TOTAL_GAMES_PLAYED) {
+                            over = i;
+                            break;
+                        } else {
+                            under = i;
+                        }
+                    }
+                    // Should we go over the amount of games, or under, dpeending which is closer
+                    if (IDEAL_TOTAL_GAMES_PLAYED - (under * gamesPerSeason) > (over * gamesPerSeason) - IDEAL_TOTAL_GAMES_PLAYED) {
+                        // Use over
+                        use = over;
+                    } else {
+                        use = under;
+                    }
+
+                    for (var i = 1; i < use; i++) {
+                        season = season.concat((createRounds(teamsIdArray)));
+                    }
+
+                    // Save the season
+                    databaseLocalScope.collection('seasons').findOne({ $query: {}, $orderby: { number: -1 } }, results => {
+                        var highestSeason = 1;
+                        if (results) {
+                            console.log(results);
+                        }
+                        console.log({ number: 1, games: season });
+                        databaseLocalScope.collection('seasons').insert({
+                            number: highestSeason,
+                            games: season
+                        });
+                        callback({ number: 1, games: season });
+                    });
+                })
+
+            }
+        });
     }
-
 }

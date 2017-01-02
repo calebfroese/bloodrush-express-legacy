@@ -8,7 +8,8 @@ MongoClient.connect('mongodb://localhost:27017/bloodrush', (err, db) => {
 // Query scripts
 var collections = {
     'teams': require('./teams.js'),
-    'users': require('./users.js')
+    'users': require('./users.js'),
+    'seasons': require('../season/season.js')
 }
 
 module.exports = {
