@@ -7,18 +7,26 @@ module.exports = {
             callback(result);
         })
     },
-    create: (database, params, callback) => {
-        if (params.username && params.email && params.password) {
-            database.collection('users').insert({
-                username: params.username,
-                email: params.email,
-                password: params.password
-            });
-            callback({ 'ok': true });
-        } else {
-            callback({ 'error': 'missing params' });
+    signup: (database, params, callback) => {
+        if (!params.user || !params.team) {
+            callback({ 'error': 'missing team or user param' });
+            return;
         }
-
+        // Create in users
+        database.collection('users').insert({
+            username: params.user.username,
+            email: params.user.email,
+            password: params.user.password
+        });
+        database.collection('teams').insert({
+            name: params.team.name,
+            acronym: params.team.acronym,
+            style: params.team.style,
+            col1: params.team.col1,
+            col2: params.team.col2,
+            col3: params.team.col3
+        });
+        callback({ 'ok': true });
     },
     delete: (database, params, callback) => {
         if (params.id) {

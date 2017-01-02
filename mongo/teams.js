@@ -6,5 +6,11 @@ module.exports = {
             if (err) throw err
             callback(result);
         })
+    },
+    byId: (database, params, callback) => {
+        database.collection('teams').find({'_id': ObjectId(params.id)}).toArray((err, result) => {
+            if (err) throw err
+            callback(result);
+        })
     }
 }
