@@ -11,12 +11,13 @@ var roundNumber = 1;
 module.exports = {
     byNumber: (database, params, callback) => {
         // Fetches the season by its number
-        database.collection('seasons').find().toArray((err, items) => {
+        database.collection('seasons').find({ 'number': params.number }).toArray((err, items) => {
             callback(items);
         });
     },
     byActive: (database, params, callback) => {
         // Fetches the active season
+        console.log('finding season');
         database.collection('seasons').find({ 'active': true }).toArray((err, items) => {
             callback(items[0]);
         });
@@ -170,20 +171,37 @@ function getHighestSeason(db) {
 
 function generatePlayoffs() {
     var gamesArray = [];
+
+    // Semi
     for (var i = 0; i < 4; i++) {
-        var finalName = ['qtr', 'semi', 'final', 'grand'];
-        var positions = [[1, 8], [2, 7], [3, 6], [4, 5]];
+        var positions = [[1, 8], [4, 5], [3, 6], [2, 7]];
         gamesArray.push({
-            'home': null,
-            'homeRank': positions[i][0],
-            'away': null,
-            'awayRank': positions[i][1],
+            'home': { 'name': positions[i][0] },
+            'away': { 'name': positions[i][1] },
             'date': moment(nextGameDate).toDate(),
-            'round': (finalName[i] + i),
+            'round': ('semi' + i),
             'game': {}
         });
-
-        nextGameDate = moment(nextGameDate).add(1, 'day');
     }
+    // Finals
+    for (var i = 0; i < 2; i++) {
+        var positions = [['semi0', 'semi1'], ['semi2', 'semi3']];
+        gamesArray.push({
+            'home': { 'name': positions[i][0] },
+            'away': { 'name': positions[i][1] },
+            'date': moment(nextGameDate).toDate(),
+            'round': ('final' + i),
+            'game': {}
+        });
+    }
+    nextGameDate = moment(nextGameDate).add(1, 'day');
+    // Grand final
+    gamesArray.push({
+        'home': { 'name': 'final0' },
+        'away': { 'name': 'final1' },
+        'date': moment(nextGameDate).toDate(),
+        'round': ('grand'),
+        'game': {}
+    });
     return gamesArray;
 }
