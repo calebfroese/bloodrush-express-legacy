@@ -11,8 +11,8 @@ var roundNumber = 1;
 module.exports = {
     byNumber: (database, params, callback) => {
         // Fetches the season by its number
-        database.collection('seasons').find({ 'number': params.number }).toArray((err, items) => {
-            callback(items);
+        database.collection('seasons').find({ 'number': params['number'] }).toArray((err, items) => {
+            callback(items[0]);
         });
     },
     byActive: (database, params, callback) => {
