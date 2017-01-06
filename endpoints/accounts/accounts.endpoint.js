@@ -3,12 +3,18 @@ var credential = require('credential');
 var pw = credential();
 
 module.exports = {
-    all: (database, params, callback) => {
-        database.collection('users').find().toArray((err, result) => {
-            if (err) throw err
-            callback(result);
-        })
-    },
+    /**
+     * Signs a user up
+     * @param {string} user.password
+     * @param {string} user.username
+     * @param {string} user.email
+     * @param {string} team.name
+     * @param {string} team.acronym
+     * @param {string} team.style
+     * @param {string} team.col1
+     * @param {string} team.col2
+     * @param {string} team.col3
+     */
     signup: (database, params, callback) => {
         if (!params.user || !params.team) {
             callback({ 'error': 'missing team or user param' });
@@ -43,14 +49,11 @@ module.exports = {
             });
         });
     },
-    delete: (database, params, callback) => {
-        if (params.id) {
-            database.collection('users').remove({ '_id': ObjectId(params.id) }, { justOne: false })
-            callback({ 'ok': true });
-        } else {
-            callback({ 'error': 'missing params' });
-        }
-    },
+    /**
+     * Logs a user in
+     * @param {string} username
+     * @param {string} password
+     */
     login: (database, params, callback) => {
         if (params.username && params.password) {
             // Make sure that the user exists

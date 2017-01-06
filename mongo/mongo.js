@@ -7,9 +7,10 @@ MongoClient.connect('mongodb://localhost:27017/bloodrush', (err, db) => {
 
 // Query scripts
 var collections = {
-    'teams': require('./teams.js'),
-    'users': require('./users.js'),
-    'seasons': require('../season/season.js')
+    'teams': require('./../endpoints/teams.endpoint.js'),
+    'users': require('./../endpoints/users.endpoint.js'),
+    'seasons': require('./../endpoints/seasons.endpoints.js'),
+    'accounts': require('./../endpoints/accounts/accounts.endpoint.js')
 }
 
 module.exports = {
@@ -19,7 +20,7 @@ module.exports = {
                 callback(response);
             });
         } else {
-            callback({'error': 'no database available'});
+            callback(new Error('No database available'));
         }
     }
 }
