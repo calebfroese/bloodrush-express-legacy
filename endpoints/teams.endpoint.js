@@ -26,7 +26,7 @@ module.exports = {
      * @param {string} ownerId
      */
     oneByOwner: (db, params, callback) => {
-        db.collection('teams').find({ '_id': ObjectId(params.ownerId) }).toArray((err, team) => {
+        db.collection('teams').find({ 'owner': ObjectId(params.ownerId) }).toArray((err, team) => {
             callback(team[0])
         });
     },
